@@ -1,55 +1,46 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    // Asegúrate de tener configurado el tool 'Python3' en Jenkins
-    python 'Python3'
-  }
-
-  environment {
-    SONARQUBE_SERVER = 'sonarqube'
-    SONAR_SCANNER_HOME = '/var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarScanner'
-    VENV = "${WORKSPACE}/venv"
-  }
-
-  stages {
-    stage('Instalar dependencias') {
-      steps {
-        sh '''
-          python -m venv ${VENV}
-          . ${VENV}/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-        '''
-      }
+    environment {
+        IMAGE_NAME = 'ingrid1017/docker-clase10'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     }
 
-    stage('Lint') {
-      steps {
-        sh '''
-          . ${VENV}/bin/activate
-          pip install pylint
-          pylint src --output-format=json > pylint-report.json || true
-        '''
-      }
-    }
-
-    stage('Análisis SonarQube') {
-      steps {
-        withSonarQubeEnv("${SONARQUBE_SERVER}") {
-          withCredentials([string(credentialsId: 'sonarqube_auth_token', variable: 'SONAR_TOKEN')]) {
-            sh """
-              ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                -Dsonar.projectKey=my-python-app \
-                -Dsonar.sources=src \
-                -Dsonar.host.url=http://sonarqube:9000 \
-                -Dsonar.token=${SONAR_TOKEN} \
-                -Dsonar.python.coverage.reportPaths=coverage.xml \
-                -Dsonar.python.pylint.reportPaths=pylint-report.json
-            """
-          }
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/ingrid1017/clase10.git'
+            }
         }
-      }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                sh 'pytest'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                sh 'docker push $IMAGE_NAME'
+            }
+        }
     }
-  }
 }
