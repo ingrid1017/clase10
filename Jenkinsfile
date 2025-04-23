@@ -8,9 +8,10 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ingrid1017/clase10.git'
+                checkout scm
             }
         }
+
 
         stage('Install Dependencies') {
             steps {
