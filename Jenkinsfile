@@ -6,10 +6,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     }
 
-    stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/ingrid1017/clase10.git'
+                git branch: 'main', url: 'https://github.com/ingrid1017/clase10.git'
             }
         }
 
