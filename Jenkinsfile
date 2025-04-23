@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'ingrid1017/clase10'
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     }
 
     stages {
@@ -40,15 +39,14 @@ pipeline {
             }
         }
 
-        stage('Login to DockerHub') {
+        stage('Login to DockerHub and Push') {
             steps {
-                sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                sh 'docker push $IMAGE_NAME'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push $IMAGE_NAME
+                    '''
+                }
             }
         }
     }
