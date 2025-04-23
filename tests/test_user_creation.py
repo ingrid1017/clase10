@@ -21,7 +21,7 @@ def test_create_user_success(monkeypatch):
     monkeypatch.setattr(requests, "post", mock_post)
 
     response = client.post("/create_user", json={"name": "admin"})
-    assert response.status_code == 404
+    assert response.status_code == 201
     expected = APIResponse(success=True, detail="Usuario creado correctamente", data={"name": "admin", "code": 1, "state": True}).dict()
     assert response.json() == expected
 
