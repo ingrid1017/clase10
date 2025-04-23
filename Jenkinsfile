@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'ingrid1017/docker-clase10'
+        IMAGE_NAME = 'ingrid1017/clase10'
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     }
 
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
 
         stage('Install Dependencies') {
             steps {
@@ -33,7 +33,7 @@ pipeline {
 
         stage('Login to DockerHub') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
             }
         }
 
