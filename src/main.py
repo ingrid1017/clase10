@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, BaseSettings, ValidationError
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings  # Cambié la importación de BaseSettings
+from pydantic import ValidationError
 import requests
 from typing import Any, Dict, Optional
 import os
